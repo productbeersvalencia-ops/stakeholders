@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stakeholder Influence - El Juego</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <!-- Pantalla de Inicio -->
+    <section id="home-screen" class="screen active">
+        <div class="home-container">
+            <div class="logo-container">
+                <div class="logo-icon">🎯</div>
+                <h1 class="game-title">Stakeholder<br>Influence</h1>
+                <p class="game-subtitle">El juego de gestión de stakeholders</p>
+            </div>
+
+            <p class="game-description">
+                Aprende a manejar situaciones difíciles con stakeholders.
+                Roba tu carta de estrategia y convence al equipo de usarla.
+            </p>
+
+            <button id="btn-draw-card" class="btn btn-primary btn-large">
+                <span class="btn-icon">🃏</span>
+                Robar mi carta
+            </button>
+
+            <p class="home-credits">
+                Creado por Sergio Pilan y <a href="https://www.productbeers.es" target="_blank" rel="noopener" class="credits-link">www.productbeers.es</a>
+            </p>
+
+            <footer class="home-footer">
+                <button id="btn-staff-access" class="btn-link-subtle">Staff</button>
+            </footer>
+        </div>
+    </section>
+
+    <!-- Modal de Contraseña Staff -->
+    <div id="staff-password-modal" class="modal">
+        <div class="modal-content modal-small">
+            <button class="modal-close" data-close-modal>&times;</button>
+            <h2>Acceso Staff</h2>
+            <p>Introduce la contraseña para acceder al panel de control.</p>
+            <input type="password" id="staff-password" class="input-password" placeholder="Contraseña">
+            <p id="password-error" class="error-text hidden">Contraseña incorrecta</p>
+            <button id="btn-staff-login" class="btn btn-primary">Entrar</button>
+        </div>
+    </div>
+
+    <!-- Vista Squad -->
+    <section id="squad-screen" class="screen">
+        <!-- Estado inicial: Robar carta -->
+        <div id="squad-draw-state" class="squad-state active">
+            <button id="btn-back-home-squad" class="btn-back">← Volver</button>
+            <div class="draw-container">
+                <h2>Tu carta de estrategia</h2>
+                <p>Pulsa la carta para robar tu estrategia</p>
+
+                <div id="card-deck-squad" class="card-deck clickable">
+                    <div class="card-back">
+                        <div class="card-back-design">
+                            <img src="img/jk.svg" alt="Beer" class="card-back-icon card-back-svg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado: Carta revelada -->
+        <div id="squad-card-state" class="squad-state">
+            <div class="revealed-card-container">
+                <div id="squad-card" class="card-simple">
+                    <div class="card-simple-inner">
+                        <div class="card-simple-back">
+                            <div class="card-back-design">
+                                <img src="img/jk.svg" alt="Beer" class="card-back-icon card-back-svg">
+                            </div>
+                        </div>
+                        <div class="card-simple-front">
+                            <img id="squad-card-image" src="" alt="Tu carta de estrategia" class="card-image-full">
+                            <div id="squad-card-fallback" class="card-fallback-full hidden">
+                                <span class="fallback-icon">💡</span>
+                                <span class="fallback-text">Carta</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="squad-actions">
+                    <button id="btn-change-card" class="btn btn-primary">
+                        <span class="btn-icon">🔄</span> Cambiar carta
+                    </button>
+                    <button id="btn-new-round-squad" class="btn btn-primary-outline">
+                        <span class="btn-icon">🔁</span> Nueva ronda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vista Staff -->
+    <section id="staff-screen" class="screen">
+        <div class="staff-container">
+            <header class="staff-header">
+                <button id="btn-back-home-staff" class="btn-back">← Salir</button>
+                <h1>Panel de Control</h1>
+            </header>
+
+            <!-- Panel de Puntuación -->
+            <div id="score-panel" class="score-panel hidden">
+                <h2>Puntos de Influencia</h2>
+                <div class="score-display">
+                    <div class="score-bar">
+                        <div id="score-fill" class="score-fill" style="width: 0%"></div>
+                        <div id="score-markers" class="score-markers"></div>
+                    </div>
+                    <div class="score-value">
+                        <span id="score-number">0</span>
+                        <span class="score-max">/10</span>
+                    </div>
+                </div>
+                <div class="score-buttons">
+                    <button class="btn btn-score btn-negative" data-points="-2">-2</button>
+                    <button class="btn btn-score btn-negative" data-points="-1">-1</button>
+                    <button class="btn btn-score btn-neutral" data-points="0">0</button>
+                    <button class="btn btn-score btn-positive" data-points="+1">+1</button>
+                    <button class="btn btn-score btn-positive" data-points="+2">+2</button>
+                </div>
+                <div id="victory-message" class="victory-message hidden">
+                    <span class="victory-icon">🏆</span>
+                    <span class="victory-text">¡Victoria del Squad!</span>
+                </div>
+            </div>
+
+            <!-- Contador de Rondas -->
+            <div id="round-panel" class="round-panel hidden">
+                <span class="round-label">Ronda:</span>
+                <button id="btn-round-minus" class="btn btn-round">-</button>
+                <span id="round-number" class="round-number">1</span>
+                <button id="btn-round-plus" class="btn btn-round">+</button>
+                <button id="btn-reset-game" class="btn btn-outline btn-small">Reiniciar</button>
+            </div>
+
+            <!-- Mazos del Staff -->
+            <div class="decks-container">
+                <!-- Selección de Stakeholder -->
+                <div class="deck-section stakeholder-section">
+                    <h3>Elige tu Stakeholder</h3>
+                    <p class="deck-hint">Selecciona el personaje que vas a interpretar</p>
+                    <div id="stakeholder-cards" class="stakeholder-cards">
+                        <!-- Se generan dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Info del Stakeholder Activo -->
+                <div id="active-stakeholder-panel" class="deck-section stakeholder-info-panel hidden">
+                    <div class="stakeholder-info-header">
+                        <div>
+                            <span class="stakeholder-info-icon" id="active-stakeholder-icon"></span>
+                            <h3 id="active-stakeholder-name"></h3>
+                        </div>
+                        <button id="btn-change-stakeholder" class="btn btn-small btn-outline">Cambiar</button>
+                    </div>
+                    <p id="active-stakeholder-description" class="stakeholder-info-description"></p>
+                    <p id="active-stakeholder-traits" class="stakeholder-info-traits"></p>
+                </div>
+
+                <!-- Botones de Acción Rápida -->
+                <div id="quick-actions" class="quick-actions-panel hidden">
+                    <button id="btn-random-behavior" class="btn btn-primary btn-action">
+                        <span class="btn-icon">🎭</span> Comportamiento Aleatorio
+                    </button>
+                    <button id="btn-random-twist" class="btn btn-primary btn-action">
+                        <span class="btn-icon">🎲</span> Giro Inesperado
+                    </button>
+                </div>
+
+                <!-- Comportamiento Actual -->
+                <div id="current-behavior" class="deck-section current-behavior-panel hidden">
+                    <div class="current-behavior-header">
+                        <span class="behavior-icon">🎭</span>
+                        <h4 id="current-behavior-name"></h4>
+                    </div>
+                    <p id="current-behavior-description"></p>
+                </div>
+            </div>
+
+            <!-- Consejos para el Staff -->
+            <details class="staff-tips">
+                <summary>Consejos para interpretar tu rol</summary>
+                <ul>
+                    <li><strong>Mantén el personaje:</strong> Actúa según los rasgos del stakeholder elegido.</li>
+                    <li><strong>Escucha activamente:</strong> Presta atención a cómo argumenta el Squad.</li>
+                    <li><strong>Sé justo:</strong> +2 para respuestas excelentes, +1 para buenas, 0 para mejorables.</li>
+                    <li><strong>Usa los giros:</strong> Añaden emoción, pero no abuses de ellos.</li>
+                    <li><strong>Diviértete:</strong> Es un juego de aprendizaje, no un examen.</li>
+                </ul>
+            </details>
+        </div>
+    </section>
+
+    <!-- Modal de Carta (compartido) -->
+    <div id="card-modal" class="modal">
+        <div class="modal-content modal-card">
+            <button class="modal-close" data-close-modal>&times;</button>
+            <div id="modal-card" class="card">
+                <div class="card-image-container">
+                    <img id="modal-card-image" src="" alt="" class="card-image">
+                    <div id="modal-card-fallback" class="card-image-fallback">
+                        <span class="fallback-icon"></span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <span id="modal-card-type" class="card-type-badge"></span>
+                    <h3 id="modal-card-name" class="card-name"></h3>
+                    <p id="modal-card-description" class="card-description"></p>
+                    <div id="modal-card-traits" class="card-traits hidden"></div>
+                    <div id="modal-card-effect" class="card-effect hidden">
+                        <span class="effect-label">Efecto:</span>
+                        <span id="modal-card-effect-text"></span>
+                        <span id="modal-card-points" class="effect-points"></span>
+                    </div>
+                    <div id="modal-card-ideal" class="card-ideal hidden">
+                        <span class="ideal-label">Ideal contra:</span>
+                        <span id="modal-card-ideal-text" class="ideal-text"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-close-card-modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación Reset -->
+    <div id="reset-modal" class="modal">
+        <div class="modal-content modal-small">
+            <button class="modal-close" data-close-modal>&times;</button>
+            <h2>¿Reiniciar partida?</h2>
+            <p>Se pondrán a cero los puntos y las rondas.</p>
+            <div class="modal-buttons">
+                <button id="btn-confirm-reset" class="btn btn-primary">Sí, reiniciar</button>
+                <button id="btn-cancel-reset" class="btn btn-outline" data-close-modal>Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/cards-data.js"></script>
+    <script src="./js/game-state.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+</html>
