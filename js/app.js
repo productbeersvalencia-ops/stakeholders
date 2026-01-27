@@ -31,7 +31,6 @@ const elements = {
     squadCardImage: document.getElementById('squad-card-image'),
     squadCardFallback: document.getElementById('squad-card-fallback'),
     btnChangeCard: document.getElementById('btn-change-card'),
-    btnNewRoundSquad: document.getElementById('btn-new-round-squad'),
     btnBackHomeSquad: document.getElementById('btn-back-home-squad'),
 
     // Vista Staff
@@ -109,6 +108,8 @@ function showSquadScreen() {
 
 function showStaffScreen() {
     showScreen('staff-screen');
+    // Limpiar stakeholder al entrar para que siempre muestre el carrusel
+    gameState.clearActiveStakeholder();
     updateStaffUI();
 }
 
@@ -493,7 +494,6 @@ function initEventListeners() {
     // Vista Squad
     elements.cardDeckSquad.addEventListener('click', drawSquadCard);
     elements.btnChangeCard.addEventListener('click', changeSquadCard);
-    elements.btnNewRoundSquad.addEventListener('click', newSquadRound);
     elements.btnBackHomeSquad.addEventListener('click', showHomeScreen);
 
     // Flip de carta con click/tap
