@@ -1919,4 +1919,11 @@ input {
     margin-top: var(--spacing-md);
 }
 
+/* Botón más alto en Squad */
+.squad-actions .btn {
+    min-height: 56px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-base);
+}
+
 
