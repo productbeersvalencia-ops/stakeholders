@@ -6,6 +6,36 @@
 // ===== CONFIGURACIÓN =====
 const STAFF_PASSWORD = 'Birrito'; // Contraseña para acceder al panel Staff
 
+// ===== SISTEMA DE PRECARGA DE IMÁGENES =====
+const imageCache = new Map();
+let nextCardToPreload = null;
+
+function preloadImage(url) {
+    if (!url || imageCache.has(url)) return Promise.resolve(imageCache.get(url));
+
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            imageCache.set(url, img);
+            resolve(img);
+        };
+        img.onerror = reject;
+        img.src = url;
+    });
+}
+
+function preloadNextCard() {
+    const remainingCards = gameState.squadDeck;
+    if (remainingCards.length > 0) {
+        const nextCard = remainingCards[0];
+        if (nextCard.image) {
+            preloadImage(nextCard.image).catch(() => {
+                // Si falla, no hacemos nada, usaremos el fallback
+            });
+        }
+    }
+}
+
 // ===== ELEMENTOS DEL DOM =====
 const elements = {
     // Pantallas
@@ -242,6 +272,8 @@ function drawSquadCard() {
     if (card) {
         displaySquadCard(card);
         showSquadCardState();
+        // Precargar la siguiente carta inmediatamente después de sacar esta
+        preloadNextCard();
     }
 }
 
@@ -250,12 +282,8 @@ function changeSquadCard() {
     if (card) {
         // Primero volver al estado de reverso
         elements.squadCard.classList.remove('flipped');
-        // Luego mostrar la nueva carta
+        // Mostrar la nueva carta (que manejará el flip cuando esté lista)
         displaySquadCard(card, false);
-        // Pequeño delay para asegurar que la animación se resetea antes de voltear
-        setTimeout(() => {
-            elements.squadCard.classList.add('flipped');
-        }, 100);
     }
 }
 
@@ -267,26 +295,70 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Solo mostrar la imagen de la carta
     if (card.image) {
-        elements.squadCardImage.src = card.image;
-        elements.squadCardImage.alt = 'Carta de estrategia';
-        elements.squadCardImage.loading = 'lazy';
-        elements.squadCardImage.classList.remove('hidden');
-        elements.squadCardFallback.classList.add('hidden');
-
-        elements.squadCardImage.onerror = () => {
-            elements.squadCardImage.classList.add('hidden');
-            elements.squadCardFallback.classList.remove('hidden');
-            const icon = elements.squadCardFallback.querySelector('.fallback-icon');
-            if (icon) icon.textContent = card.icon || '💡';
-        };
-    } else {
+        // Mostrar placeholder skeleton mientras carga
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardFallback.classList.remove('hidden');
+        elements.squadCardFallback.classList.add('skeleton-loading');
+        const icon = elements.squadCardFallback.querySelector('.fallback-icon');
+        if (icon) icon.textContent = '⏳';
+
+        // Intentar usar imagen precargada del cache
+        if (imageCache.has(card.image)) {
+            elements.squadCardImage.src = card.image;
+            elements.squadCardImage.alt = 'Carta de estrategia';
+            elements.squadCardImage.classList.remove('hidden');
+            elements.squadCardFallback.classList.remove('hidden', 'skeleton-loading');
+            elements.squadCardFallback.classList.add('hidden');
+
+            // Hacer flip automáticamente cuando la imagen está en cache
+            setTimeout(() => {
+                elements.squadCard.classList.add('flipped');
+            }, 50);
+
+            // Precargar la siguiente carta
+            preloadNextCard();
+        } else {
+            // Si no está en cache, cargar normalmente
+            elements.squadCardImage.onload = () => {
+                elements.squadCardImage.classList.remove('hidden');
+                elements.squadCardFallback.classList.remove('skeleton-loading');
+                elements.squadCardFallback.classList.add('hidden');
+
+                // Hacer flip automáticamente cuando la imagen se cargó
+                setTimeout(() => {
+                    elements.squadCard.classList.add('flipped');
+                }, 50);
+
+                // Precargar la siguiente carta después de mostrar esta
+                preloadNextCard();
+            };
+
+            elements.squadCardImage.onerror = () => {
+                elements.squadCardImage.classList.add('hidden');
+                elements.squadCardFallback.classList.remove('skeleton-loading', 'hidden');
+                const fallbackIcon = elements.squadCardFallback.querySelector('.fallback-icon');
+                if (fallbackIcon) fallbackIcon.textContent = card.icon || '💡';
+
+                // Hacer flip para mostrar el fallback con el icono
+                setTimeout(() => {
+                    elements.squadCard.classList.add('flipped');
+                }, 50);
+            };
+
+            elements.squadCardImage.src = card.image;
+            elements.squadCardImage.alt = 'Carta de estrategia';
+        }
+    } else {
+        elements.squadCardImage.classList.add('hidden');
+        elements.squadCardFallback.classList.remove('hidden', 'skeleton-loading');
         const icon = elements.squadCardFallback.querySelector('.fallback-icon');
         if (icon) icon.textContent = card.icon || '💡';
-    }
 
-    // El flip ahora se activa con click/tap, no automáticamente
+        // Hacer flip para mostrar el fallback
+        setTimeout(() => {
+            elements.squadCard.classList.add('flipped');
+        }, 50);
+    }
 }
 
 function newSquadRound() {
@@ -592,3 +664,4 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
