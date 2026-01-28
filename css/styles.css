@@ -619,14 +619,10 @@ input {
 
 .squad-actions {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: var(--spacing-md);
     width: 100%;
     grid-row: 2;
-}
-
-.squad-actions .btn {
-    flex: 1;
 }
 
 /* Carta simple (solo imagen) con flip */
@@ -698,6 +694,21 @@ input {
     height: 100%;
     object-fit: cover;
     display: block;
+    color: transparent;
+    font-size: 0;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.15s ease-in;
+}
+
+.card-image-full.loaded {
+    opacity: 1;
+}
+
+/* Ocultar el icono de imagen rota en todos los navegadores */
+.card-image-full::before,
+.card-image-full::after {
+    display: none !important;
 }
 
 .card-fallback-full {
@@ -1925,5 +1936,6 @@ input {
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-base);
 }
+
 
 
