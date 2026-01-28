@@ -701,6 +701,9 @@ input {
     color: transparent;
     font-size: 0;
     background: transparent;
+    /* Asegurar que la imagen está encima del fallback cuando está loaded */
+    position: relative;
+    z-index: 2;
 }
 
 .card-image-full.loaded {
@@ -729,6 +732,8 @@ input {
     justify-content: center;
     background: linear-gradient(135deg, var(--color-strategy-bg) 0%, var(--color-strategy-light) 100%);
     color: white;
+    /* El fallback debe estar debajo de la imagen */
+    z-index: 1;
 }
 
 .card-fallback-full .fallback-icon {
