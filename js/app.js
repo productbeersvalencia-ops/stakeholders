@@ -270,8 +270,15 @@ function checkStaffPassword() {
 function drawSquadCard() {
     const card = gameState.drawStrategy();
     if (card) {
-        displaySquadCard(card);
+        // Asegurar que la carta empieza en reverso (sin flip)
+        elements.squadCard.classList.remove('flipped');
+
+        // Mostrar el estado de carta (con el reverso visible)
         showSquadCardState();
+
+        // Cargar imagen y hacer flip cuando esté lista
+        displaySquadCard(card, false);
+
         // Precargar la siguiente carta inmediatamente después de sacar esta
         preloadNextCard();
     }
@@ -705,3 +712,4 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
