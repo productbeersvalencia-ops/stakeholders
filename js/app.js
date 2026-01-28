@@ -300,14 +300,12 @@ function displaySquadCard(card, keepFlipped = false) {
         elements.squadCardFallback.classList.remove('skeleton-loading');
         elements.squadCardFallback.classList.add('hidden');
         elements.squadCardImage.classList.remove('hidden');
-        elements.squadCardImage.classList.add('loaded');
 
-        // Hacer flip al frente con la nueva imagen
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                elements.squadCard.classList.add('flipped');
-            });
-        });
+        // Esperar 100ms para asegurar que la imagen está pintada en TODOS los dispositivos
+        setTimeout(() => {
+            elements.squadCardImage.classList.add('loaded');
+            elements.squadCard.classList.add('flipped');
+        }, 100);
 
         // Precargar la siguiente carta
         preloadNextCard();
@@ -737,4 +735,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
