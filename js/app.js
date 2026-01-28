@@ -375,10 +375,21 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
         if (cachedImg.complete && cachedImg.naturalWidth > 0) {
             elements.squadCardImage.src = cachedImg.src;
             elements.squadCardImage.alt = 'Carta de estrategia';
-            onSuccess();
+
+            // Usar decode() para asegurar que la imagen está lista para pintar (fix iOS)
+            if (elements.squadCardImage.decode) {
+                elements.squadCardImage.decode()
+                    .then(() => onSuccess())
+                    .catch(() => onSuccess()); // Si falla decode, intentar mostrar igual
+            } else {
+                // Fallback para navegadores sin decode()
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => onSuccess());
+                });
+            }
         } else {
             // Por si acaso, esperar a que termine de cargar
-            elements.squadCardImage.onload = onSuccess;
+            elements.squadCardImage.onload = () => decodeAndShow(onSuccess);
             elements.squadCardImage.onerror = () => {
                 console.warn('Error cargando imagen desde cache:', card.image);
                 onFallback(card.icon || '💡');
@@ -388,13 +399,27 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
         }
     } else {
         // Imagen no está en cache, cargar normalmente
-        elements.squadCardImage.onload = onSuccess;
+        elements.squadCardImage.onload = () => decodeAndShow(onSuccess);
         elements.squadCardImage.onerror = () => {
             console.warn('Error cargando imagen:', card.image);
             onFallback(card.icon || '💡');
         };
         elements.squadCardImage.src = card.image;
         elements.squadCardImage.alt = 'Carta de estrategia';
+    }
+}
+
+// Fix para iOS: usar decode() para asegurar que la imagen está lista para pintar
+function decodeAndShow(callback) {
+    if (elements.squadCardImage.decode) {
+        elements.squadCardImage.decode()
+            .then(() => callback())
+            .catch(() => callback()); // Si falla decode, intentar mostrar igual
+    } else {
+        // Fallback para navegadores sin decode()
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => callback());
+        });
     }
 }
 
