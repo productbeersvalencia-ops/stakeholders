@@ -694,21 +694,30 @@ input {
     height: 100%;
     object-fit: cover;
     display: block;
+    /* Ocultar completamente hasta que esté loaded - previene ladrillo */
+    visibility: hidden;
+    opacity: 0;
+    /* Ocultar alt text y cualquier contenido de imagen rota */
     color: transparent;
     font-size: 0;
     background: transparent;
-    opacity: 0;
-    transition: opacity 0.15s ease-in;
 }
 
 .card-image-full.loaded {
+    visibility: visible;
     opacity: 1;
+    transition: opacity 0.15s ease-in;
 }
 
 /* Ocultar el icono de imagen rota en todos los navegadores */
 .card-image-full::before,
 .card-image-full::after {
     display: none !important;
+}
+
+/* Forzar que la imagen rota no se muestre */
+.card-image-full:not(.loaded) {
+    content-visibility: hidden;
 }
 
 .card-fallback-full {
@@ -1936,6 +1945,5 @@ input {
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-base);
 }
-
 
 
