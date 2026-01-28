@@ -721,6 +721,46 @@ input {
     font-weight: 600;
 }
 
+/* Skeleton loading animation para placeholder */
+.card-fallback-full.skeleton-loading {
+    background: linear-gradient(
+        90deg,
+        rgba(234, 179, 8, 0.1) 0%,
+        rgba(234, 179, 8, 0.2) 50%,
+        rgba(234, 179, 8, 0.1) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.card-fallback-full.skeleton-loading .fallback-icon {
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.card-fallback-full.skeleton-loading .fallback-text {
+    display: none;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
 /* ===== CARTAS ===== */
 .card-deck {
     width: var(--card-width);
@@ -1850,4 +1890,3 @@ input {
         margin-top: var(--spacing-sm);
     }
 }
-
