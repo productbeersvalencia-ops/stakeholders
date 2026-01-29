@@ -10,9 +10,6 @@ const STAFF_PASSWORD = 'Birrito'; // Contraseña para acceder al panel Staff
 const imageCache = new Map();
 let nextCardToPreload = null;
 
-// Referencia al contenedor padre del fallback (para poder re-insertarlo)
-let fallbackParent = null;
-
 function preloadImage(url) {
     if (!url || imageCache.has(url)) return Promise.resolve(imageCache.get(url));
 
@@ -300,26 +297,16 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Función auxiliar para mostrar imagen y hacer flip
     const showImageAndFlip = () => {
-        // Paso 1: Preparar la imagen (invisible por CSS)
+        // Ocultar fallback (ahora funciona correctamente porque está fuera del 3D)
+        elements.squadCardFallback.classList.add('hidden');
         elements.squadCardFallback.classList.remove('skeleton-loading');
+
+        // Mostrar imagen
         elements.squadCardImage.classList.remove('hidden');
+        elements.squadCardImage.classList.add('loaded');
 
-        // Paso 2: Esperar a que la imagen esté lista para pintar
-        setTimeout(() => {
-            // Paso 3: REMOVER el fallback del DOM completamente (fix iOS)
-            if (elements.squadCardFallback.parentNode) {
-                elements.squadCardFallback.parentNode.removeChild(elements.squadCardFallback);
-            }
-
-            // Paso 4: Mostrar imagen
-            elements.squadCardImage.classList.add('loaded');
-
-            // Paso 5: Forzar reflow antes del flip (crítico para iOS)
-            void elements.squadCard.offsetHeight;
-
-            // Paso 6: Ahora hacer el flip
-            elements.squadCard.classList.add('flipped');
-        }, 150);
+        // Hacer el flip
+        elements.squadCard.classList.add('flipped');
 
         // Precargar la siguiente carta
         preloadNextCard();
@@ -327,25 +314,20 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Función auxiliar para mostrar fallback y hacer flip
     const showFallbackAndFlip = (iconText) => {
-        // Re-insertar fallback en el DOM si fue removido
-        if (!elements.squadCardFallback.parentNode && fallbackParent) {
-            fallbackParent.appendChild(elements.squadCardFallback);
-        }
-        elements.squadCardFallback.classList.remove('skeleton-loading');
-        elements.squadCardFallback.classList.remove('force-hide');
+        // Mostrar fallback
         elements.squadCardFallback.classList.remove('hidden');
-        elements.squadCardFallback.style.display = ''; // Restaurar display
+        elements.squadCardFallback.classList.remove('skeleton-loading');
+
+        // Ocultar imagen
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardImage.classList.remove('loaded');
+
+        // Actualizar icono
         const fallbackIcon = elements.squadCardFallback.querySelector('.fallback-icon');
         if (fallbackIcon) fallbackIcon.textContent = iconText;
 
-        // Hacer flip al frente con el fallback
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                elements.squadCard.classList.add('flipped');
-            });
-        });
+        // Hacer flip
+        elements.squadCard.classList.add('flipped');
     };
 
     // Si estamos cambiando de carta (keepFlipped=true desde changeSquadCard)
@@ -377,14 +359,7 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
     // Preparar skeleton mientras carga - mostrar cerveza SVG
     elements.squadCardImage.classList.add('hidden');
     elements.squadCardImage.classList.remove('loaded');
-
-    // Re-insertar fallback en el DOM si fue removido
-    if (!elements.squadCardFallback.parentNode && fallbackParent) {
-        fallbackParent.appendChild(elements.squadCardFallback);
-    }
-    elements.squadCardFallback.classList.remove('force-hide');
     elements.squadCardFallback.classList.remove('hidden');
-    elements.squadCardFallback.style.display = ''; // Restaurar display
     elements.squadCardFallback.classList.add('skeleton-loading');
     const icon = elements.squadCardFallback.querySelector('.fallback-icon');
     if (icon) {
@@ -750,9 +725,6 @@ function init() {
     initEventListeners();
     updateStaffUI();
 
-    // Guardar referencia al padre del fallback para poder re-insertarlo
-    fallbackParent = elements.squadCardFallback.parentNode;
-
     // Mostrar pantalla inicial
     showHomeScreen();
 
@@ -765,4 +737,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
