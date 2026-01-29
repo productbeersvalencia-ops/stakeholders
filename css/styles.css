@@ -631,6 +631,7 @@ input {
     aspect-ratio: 5 / 7;
     grid-row: 1;
     perspective: 1000px;
+    position: relative;  /* Necesario para posicionar fallback fuera del 3D */
 }
 
 .card-simple-inner {
@@ -732,18 +733,11 @@ input {
     justify-content: center;
     background: linear-gradient(135deg, var(--color-strategy-bg) 0%, var(--color-strategy-light) 100%);
     color: white;
-    /* El fallback debe estar debajo de la imagen */
-    z-index: 1;
-    /* Para ocultar durante flip en iOS */
-    transition: opacity 0.05s ease-out;
+    z-index: 10;  /* Encima de todo cuando visible */
+    border-radius: var(--radius-card);  /* Para que coincida con la carta */
+    overflow: hidden;  /* Para que el border-radius funcione */
 }
 
-/* Ocultar fallback cuando la imagen está cargada - más agresivo para iOS */
-.card-fallback-full.force-hide {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-}
 
 .card-fallback-full .fallback-icon {
     font-size: 4rem;
@@ -1959,5 +1953,6 @@ input {
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-base);
 }
+
 
 
