@@ -688,6 +688,14 @@ input {
 .card-simple-front {
     transform: rotateY(180deg);
     background-color: var(--color-surface);
+    /* Fix iOS: forzar que el anverso esté por encima del reverso durante el flip */
+    z-index: 10;
+}
+
+/* Fix iOS: el SVG del reverso debe estar detrás del anverso */
+.card-back-svg {
+    position: relative;
+    z-index: -1;
 }
 
 .card-image-full {
@@ -1889,6 +1897,4 @@ input {
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-base);
 }
-
-
 
