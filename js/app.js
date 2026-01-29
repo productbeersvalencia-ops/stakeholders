@@ -25,7 +25,10 @@ function preloadImage(url) {
 }
 
 function preloadNextCard() {
-    const remainingCards = gameState.squadDeck;
+    const strategies = CARDS_DATA.strategies || [];
+    const drawnIds = gameState.drawnStrategies || [];
+    const remainingCards = strategies.filter(s => !drawnIds.includes(s.id));
+
     if (remainingCards.length > 0) {
         const nextCard = remainingCards[0];
         if (nextCard.image) {
@@ -712,4 +715,3 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
