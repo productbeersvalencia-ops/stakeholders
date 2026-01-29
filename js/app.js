@@ -59,7 +59,6 @@ const elements = {
     cardDeckSquad: document.getElementById('card-deck-squad'),
     squadCard: document.getElementById('squad-card'),
     squadCardImage: document.getElementById('squad-card-image'),
-    squadCardFallback: document.getElementById('squad-card-fallback'),
     btnChangeCard: document.getElementById('btn-change-card'),
     btnBackHomeSquad: document.getElementById('btn-back-home-squad'),
 
@@ -297,10 +296,6 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Función auxiliar para mostrar imagen y hacer flip
     const showImageAndFlip = () => {
-        // Ocultar fallback (ahora funciona correctamente porque está fuera del 3D)
-        elements.squadCardFallback.classList.add('hidden');
-        elements.squadCardFallback.classList.remove('skeleton-loading');
-
         // Mostrar imagen
         elements.squadCardImage.classList.remove('hidden');
         elements.squadCardImage.classList.add('loaded');
@@ -312,19 +307,19 @@ function displaySquadCard(card, keepFlipped = false) {
         preloadNextCard();
     };
 
-    // Función auxiliar para mostrar fallback y hacer flip
-    const showFallbackAndFlip = (iconText) => {
-        // Mostrar fallback
-        elements.squadCardFallback.classList.remove('hidden');
-        elements.squadCardFallback.classList.remove('skeleton-loading');
-
-        // Ocultar imagen
+    // Función auxiliar para mostrar fallback (SVG cerveza) cuando falla la imagen
+    const showFallbackAndFlip = () => {
+        // Ocultar la imagen rota
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardImage.classList.remove('loaded');
 
-        // Actualizar icono
-        const fallbackIcon = elements.squadCardFallback.querySelector('.fallback-icon');
-        if (fallbackIcon) fallbackIcon.textContent = iconText;
+        // Usar el front como fallback con el SVG de cerveza
+        const front = document.querySelector('.card-simple-front');
+        front.style.background = 'linear-gradient(135deg, #d1fae5 0%, #10b981 100%)';
+        front.style.display = 'flex';
+        front.style.alignItems = 'center';
+        front.style.justifyContent = 'center';
+        front.innerHTML = '<img src="./img/jk.svg" alt="Carta" style="width: 6rem; height: 6rem; filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.5));">';
 
         // Hacer flip
         elements.squadCard.classList.add('flipped');
@@ -352,20 +347,13 @@ function displaySquadCard(card, keepFlipped = false) {
 function loadAndPrepareImage(card, onSuccess, onFallback) {
     if (!card.image) {
         // No hay imagen, mostrar fallback directamente
-        onFallback(card.icon || '💡');
+        onFallback();
         return;
     }
 
-    // Preparar skeleton mientras carga - mostrar cerveza SVG
+    // NO mostrar nada mientras carga - mantener el reverso visible
     elements.squadCardImage.classList.add('hidden');
     elements.squadCardImage.classList.remove('loaded');
-    elements.squadCardFallback.classList.remove('hidden');
-    elements.squadCardFallback.classList.add('skeleton-loading');
-    const icon = elements.squadCardFallback.querySelector('.fallback-icon');
-    if (icon) {
-        // Usar el mismo SVG de cerveza del reverso
-        icon.innerHTML = '<img src="./img/jk.svg" alt="Cargando" style="width: 4rem; height: 4rem; filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.5));">';
-    }
 
     // Verificar si la imagen está en cache
     if (imageCache.has(card.image)) {
@@ -387,26 +375,18 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
                     requestAnimationFrame(() => onSuccess());
                 });
             }
-        } else {
-            // Por si acaso, esperar a que termine de cargar
-            elements.squadCardImage.onload = () => decodeAndShow(onSuccess);
-            elements.squadCardImage.onerror = () => {
-                console.warn('Error cargando imagen desde cache:', card.image);
-                onFallback(card.icon || '💡');
-            };
-            elements.squadCardImage.src = cachedImg.src;
-            elements.squadCardImage.alt = 'Carta de estrategia';
+            return;
         }
-    } else {
-        // Imagen no está en cache, cargar normalmente
-        elements.squadCardImage.onload = () => decodeAndShow(onSuccess);
-        elements.squadCardImage.onerror = () => {
-            console.warn('Error cargando imagen:', card.image);
-            onFallback(card.icon || '💡');
-        };
-        elements.squadCardImage.src = card.image;
-        elements.squadCardImage.alt = 'Carta de estrategia';
     }
+
+    // Imagen no está en cache o no está completa, cargar normalmente
+    elements.squadCardImage.onload = () => decodeAndShow(onSuccess);
+    elements.squadCardImage.onerror = () => {
+        console.warn('Error cargando imagen:', card.image);
+        onFallback();
+    };
+    elements.squadCardImage.src = card.image;
+    elements.squadCardImage.alt = 'Carta de estrategia';
 }
 
 // Fix para iOS: usar decode() para asegurar que la imagen está lista para pintar
@@ -641,15 +621,10 @@ function initEventListeners() {
     // Flip de carta con click/tap - solo si la imagen está cargada
     elements.squadCard.addEventListener('click', () => {
         // Solo permitir flip si la imagen está visible (cargada correctamente)
-        const imageVisible = !elements.squadCardImage.classList.contains('hidden');
-        const fallbackVisible = !elements.squadCardFallback.classList.contains('hidden');
-        const isLoading = elements.squadCardFallback.classList.contains('skeleton-loading');
+        const imageLoaded = elements.squadCardImage.classList.contains('loaded');
 
-        // No permitir flip si está cargando
-        if (isLoading) return;
-
-        // Permitir flip solo si hay contenido válido (imagen o fallback sin skeleton)
-        if (imageVisible || (fallbackVisible && !isLoading)) {
+        // Permitir flip solo si la imagen está cargada
+        if (imageLoaded) {
             elements.squadCard.classList.toggle('flipped');
         }
     });
@@ -737,4 +712,5 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
 
