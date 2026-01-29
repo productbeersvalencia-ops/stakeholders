@@ -727,15 +727,20 @@ input {
 .card-fallback-full {
     position: absolute;
     inset: 0;
-    display: flex;
+    display: none;  /* Oculto por defecto */
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, var(--color-strategy-bg) 0%, var(--color-strategy-light) 100%);
     color: white;
-    z-index: 10;  /* Encima de todo cuando visible */
-    border-radius: var(--radius-card);  /* Para que coincida con la carta */
-    overflow: hidden;  /* Para que el border-radius funcione */
+    z-index: 10;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+}
+
+/* Solo mostrar fallback cuando la carta está flipped (mostrando frente) Y no tiene hidden */
+.card-simple.flipped .card-fallback-full:not(.hidden) {
+    display: flex;
 }
 
 
@@ -1953,6 +1958,5 @@ input {
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-base);
 }
-
 
 
