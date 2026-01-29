@@ -313,9 +313,9 @@ function displaySquadCard(card, keepFlipped = false) {
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardImage.classList.remove('loaded');
 
-        // Usar el front como fallback con el SVG de cerveza
+        // Usar el front como fallback con el SVG de cerveza (mismo estilo que el reverso)
         const front = document.querySelector('.card-simple-front');
-        front.style.background = 'linear-gradient(135deg, #d1fae5 0%, #10b981 100%)';
+        front.style.background = 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%)';
         front.style.display = 'flex';
         front.style.alignItems = 'center';
         front.style.justifyContent = 'center';
@@ -712,5 +712,4 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
 
