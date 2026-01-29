@@ -10,6 +10,9 @@ const STAFF_PASSWORD = 'Birrito'; // Contraseña para acceder al panel Staff
 const imageCache = new Map();
 let nextCardToPreload = null;
 
+// Referencia al contenedor padre del fallback (para poder re-insertarlo)
+let fallbackParent = null;
+
 function preloadImage(url) {
     if (!url || imageCache.has(url)) return Promise.resolve(imageCache.get(url));
 
@@ -303,10 +306,10 @@ function displaySquadCard(card, keepFlipped = false) {
 
         // Paso 2: Esperar a que la imagen esté lista para pintar
         setTimeout(() => {
-            // Paso 3: Ocultar fallback con TODAS las técnicas posibles
-            elements.squadCardFallback.classList.add('force-hide');
-            elements.squadCardFallback.classList.add('hidden');
-            elements.squadCardFallback.style.display = 'none';
+            // Paso 3: REMOVER el fallback del DOM completamente (fix iOS)
+            if (elements.squadCardFallback.parentNode) {
+                elements.squadCardFallback.parentNode.removeChild(elements.squadCardFallback);
+            }
 
             // Paso 4: Mostrar imagen
             elements.squadCardImage.classList.add('loaded');
@@ -324,6 +327,10 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Función auxiliar para mostrar fallback y hacer flip
     const showFallbackAndFlip = (iconText) => {
+        // Re-insertar fallback en el DOM si fue removido
+        if (!elements.squadCardFallback.parentNode && fallbackParent) {
+            fallbackParent.appendChild(elements.squadCardFallback);
+        }
         elements.squadCardFallback.classList.remove('skeleton-loading');
         elements.squadCardFallback.classList.remove('force-hide');
         elements.squadCardFallback.classList.remove('hidden');
@@ -370,6 +377,11 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
     // Preparar skeleton mientras carga - mostrar cerveza SVG
     elements.squadCardImage.classList.add('hidden');
     elements.squadCardImage.classList.remove('loaded');
+
+    // Re-insertar fallback en el DOM si fue removido
+    if (!elements.squadCardFallback.parentNode && fallbackParent) {
+        fallbackParent.appendChild(elements.squadCardFallback);
+    }
     elements.squadCardFallback.classList.remove('force-hide');
     elements.squadCardFallback.classList.remove('hidden');
     elements.squadCardFallback.style.display = ''; // Restaurar display
@@ -737,6 +749,9 @@ function init() {
     createScoreMarkers();
     initEventListeners();
     updateStaffUI();
+
+    // Guardar referencia al padre del fallback para poder re-insertarlo
+    fallbackParent = elements.squadCardFallback.parentNode;
 
     // Mostrar pantalla inicial
     showHomeScreen();
