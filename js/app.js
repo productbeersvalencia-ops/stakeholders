@@ -297,17 +297,21 @@ function displaySquadCard(card, keepFlipped = false) {
 
     // Función auxiliar para mostrar imagen y hacer flip
     const showImageAndFlip = () => {
-        // Quitar animación de skeleton pero NO ocultar el fallback aún
+        // Paso 1: Preparar la imagen (invisible por CSS)
         elements.squadCardFallback.classList.remove('skeleton-loading');
-        // Mostrar la imagen (pero invisible por CSS hasta .loaded)
         elements.squadCardImage.classList.remove('hidden');
 
-        // Esperar 100ms para asegurar que la imagen está pintada en TODOS los dispositivos
+        // Paso 2: Esperar a que la imagen esté lista para pintar
         setTimeout(() => {
-            // AHORA sí ocultar el fallback y mostrar la imagen
+            // Paso 3: PRIMERO ocultar fallback y mostrar imagen
             elements.squadCardFallback.classList.add('hidden');
             elements.squadCardImage.classList.add('loaded');
-            elements.squadCard.classList.add('flipped');
+
+            // Paso 4: Esperar un frame para que iOS procese los cambios de visibilidad
+            // ANTES de iniciar el flip
+            requestAnimationFrame(() => {
+                elements.squadCard.classList.add('flipped');
+            });
         }, 100);
 
         // Precargar la siguiente carta
