@@ -303,16 +303,20 @@ function displaySquadCard(card, keepFlipped = false) {
 
         // Paso 2: Esperar a que la imagen esté lista para pintar
         setTimeout(() => {
-            // Paso 3: PRIMERO ocultar fallback y mostrar imagen
+            // Paso 3: Ocultar fallback AGRESIVAMENTE con display:none
+            elements.squadCardFallback.style.display = 'none';
             elements.squadCardFallback.classList.add('hidden');
+
+            // Paso 4: Mostrar imagen
             elements.squadCardImage.classList.add('loaded');
 
-            // Paso 4: Esperar un frame para que iOS procese los cambios de visibilidad
-            // ANTES de iniciar el flip
+            // Paso 5: Esperar DOS frames para que iOS procese los cambios
             requestAnimationFrame(() => {
-                elements.squadCard.classList.add('flipped');
+                requestAnimationFrame(() => {
+                    elements.squadCard.classList.add('flipped');
+                });
             });
-        }, 100);
+        }, 150); // Aumentado a 150ms
 
         // Precargar la siguiente carta
         preloadNextCard();
@@ -321,6 +325,7 @@ function displaySquadCard(card, keepFlipped = false) {
     // Función auxiliar para mostrar fallback y hacer flip
     const showFallbackAndFlip = (iconText) => {
         elements.squadCardFallback.classList.remove('skeleton-loading');
+        elements.squadCardFallback.style.display = ''; // Restaurar display
         elements.squadCardFallback.classList.remove('hidden');
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardImage.classList.remove('loaded');
@@ -364,6 +369,7 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
     // Preparar skeleton mientras carga - mostrar cerveza SVG
     elements.squadCardImage.classList.add('hidden');
     elements.squadCardImage.classList.remove('loaded');
+    elements.squadCardFallback.style.display = ''; // Restaurar display
     elements.squadCardFallback.classList.remove('hidden');
     elements.squadCardFallback.classList.add('skeleton-loading');
     const icon = elements.squadCardFallback.querySelector('.fallback-icon');
