@@ -734,6 +734,15 @@ input {
     color: white;
     /* El fallback debe estar debajo de la imagen */
     z-index: 1;
+    /* Para ocultar durante flip en iOS */
+    transition: opacity 0.05s ease-out;
+}
+
+/* Ocultar fallback cuando la imagen está cargada - más agresivo para iOS */
+.card-fallback-full.force-hide {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 .card-fallback-full .fallback-icon {
