@@ -303,20 +303,20 @@ function displaySquadCard(card, keepFlipped = false) {
 
         // Paso 2: Esperar a que la imagen esté lista para pintar
         setTimeout(() => {
-            // Paso 3: Ocultar fallback AGRESIVAMENTE con display:none
-            elements.squadCardFallback.style.display = 'none';
+            // Paso 3: Ocultar fallback con TODAS las técnicas posibles
+            elements.squadCardFallback.classList.add('force-hide');
             elements.squadCardFallback.classList.add('hidden');
+            elements.squadCardFallback.style.display = 'none';
 
             // Paso 4: Mostrar imagen
             elements.squadCardImage.classList.add('loaded');
 
-            // Paso 5: Esperar DOS frames para que iOS procese los cambios
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    elements.squadCard.classList.add('flipped');
-                });
-            });
-        }, 150); // Aumentado a 150ms
+            // Paso 5: Forzar reflow antes del flip (crítico para iOS)
+            void elements.squadCard.offsetHeight;
+
+            // Paso 6: Ahora hacer el flip
+            elements.squadCard.classList.add('flipped');
+        }, 150);
 
         // Precargar la siguiente carta
         preloadNextCard();
@@ -325,8 +325,9 @@ function displaySquadCard(card, keepFlipped = false) {
     // Función auxiliar para mostrar fallback y hacer flip
     const showFallbackAndFlip = (iconText) => {
         elements.squadCardFallback.classList.remove('skeleton-loading');
-        elements.squadCardFallback.style.display = ''; // Restaurar display
+        elements.squadCardFallback.classList.remove('force-hide');
         elements.squadCardFallback.classList.remove('hidden');
+        elements.squadCardFallback.style.display = ''; // Restaurar display
         elements.squadCardImage.classList.add('hidden');
         elements.squadCardImage.classList.remove('loaded');
         const fallbackIcon = elements.squadCardFallback.querySelector('.fallback-icon');
@@ -369,8 +370,9 @@ function loadAndPrepareImage(card, onSuccess, onFallback) {
     // Preparar skeleton mientras carga - mostrar cerveza SVG
     elements.squadCardImage.classList.add('hidden');
     elements.squadCardImage.classList.remove('loaded');
-    elements.squadCardFallback.style.display = ''; // Restaurar display
+    elements.squadCardFallback.classList.remove('force-hide');
     elements.squadCardFallback.classList.remove('hidden');
+    elements.squadCardFallback.style.display = ''; // Restaurar display
     elements.squadCardFallback.classList.add('skeleton-loading');
     const icon = elements.squadCardFallback.querySelector('.fallback-icon');
     if (icon) {
